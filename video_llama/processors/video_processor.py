@@ -56,6 +56,45 @@ def load_video(video_path, n_frms=MAX_INT, height=-1, width=-1, sampling="unifor
     return frms, msg
 
 
+def load_video_cv2(video_path, n_frms=MAX_INT, height=-1, width=-1, sampling="uniform", return_msg = False):
+    import cv2
+
+    cap = cv2.VideoCapture(video_path)
+    vlen = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+
+    start, end = 0, vlen
+
+    n_frms = min(n_frms, vlen)
+
+    if sampling == "uniform":
+        indices = np.arange(start, end, vlen / n_frms).astype(int).tolist()
+    elif sampling == "headtail":
+        indices_h = sorted(rnd.sample(range(vlen // 2), n_frms // 2))
+        indices_t = sorted(rnd.sample(range(vlen // 2, vlen), n_frms // 2))
+        indices = indices_h + indices_t
+    else:
+        raise NotImplementedError
+
+    frms = []
+    for i in indices:
+        cap.set(cv2.CAP_PROP_POS_FRAMES, i)
+        ret, frame = cap.read()
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        frms.append(frame)
+    frms = torch.from_numpy(np.stack(frms, axis=0)).permute(3, 0, 1, 2).float()
+
+    # Resize to the given size
+    if height > 0 and width > 0:
+        frms = F.resize(frms, (height, width), interpolation_mode="bilinear")
+
+    if not return_msg:
+        return frms
+
+    msg = f"The video contains {len(indices)} frames sampled at {indices} frames. "
+
+    return frms, msg
+
+
 class AlproVideoBaseProcessor(BaseProcessor):
     def __init__(self, mean=None, std=None, n_frms=MAX_INT):
         if mean is None:

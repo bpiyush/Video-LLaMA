@@ -16,7 +16,9 @@ from enum import auto, Enum
 from typing import List, Tuple, Any
 import os
 from video_llama.common.registry import registry
-from video_llama.processors.video_processor import ToTHWC,ToUint8,load_video
+from video_llama.processors.video_processor import (
+    ToTHWC, ToUint8, load_video, load_video_cv2,
+)
 from video_llama.processors import Blip2ImageEvalProcessor
             
 from video_llama.models.ImageBind.data import load_and_transform_audio_data
@@ -277,13 +279,14 @@ class Chat:
                 conv.append_message(conv.roles[0], "<Video><ImageHere></Video> "+ msg)
             return "Received."
 
-    def upload_video_without_audio(self, video_path, conv, img_list):
+    def upload_video_without_audio(self, video_path, conv, img_list, video_loader="load_video"):
         msg = ""
         if isinstance(video_path, str):  # is a video path
             ext = os.path.splitext(video_path)[-1].lower()
-            print(video_path)
+            # print(video_path)
             # image = self.vis_processor(image).unsqueeze(0).to(self.device)
-            video, msg = load_video(
+            video_loader = eval(video_loader)
+            video, msg = video_loader(
                 video_path=video_path,
                 n_frms=8,
                 height=224,
