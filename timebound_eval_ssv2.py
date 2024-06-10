@@ -180,7 +180,7 @@ if __name__ == "__main__":
     chat = Chat(model, vis_processor, device=device_str)
 
     # Debug
-    debug = True
+    debug = False
     if debug:
         is_correct = get_llm_answer()
         print(f"Accuracy: {is_correct:.2f}")
