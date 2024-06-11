@@ -1,0 +1,2 @@
+Number of failed:  1447
+Video to text accuracy:  0.5553422643358928
