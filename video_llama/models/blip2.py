@@ -87,6 +87,7 @@ class Blip2Base(BaseModel):
 
         # logging.info("Missing keys {}".format(msg.missing_keys))
         logging.info("load checkpoint from %s" % url_or_filename)
+        print("load checkpoint from %s" % url_or_filename)
 
         return msg
 
