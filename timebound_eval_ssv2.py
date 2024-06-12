@@ -214,7 +214,6 @@ if __name__ == "__main__":
             is_correct = get_llm_answer(video_path_y, [label_y, label_x])
             text_corrects.append(is_correct)
         except:
-            import ipdb; ipdb.set_trace()
             failed.append(i)
 
         if debug:
@@ -222,6 +221,7 @@ if __name__ == "__main__":
                 break
     
     print("Number of failed: ", len(failed))
+    print(failed)
 
     text_corrects = np.array(text_corrects)
     print("Video to text accuracy: ", text_corrects.mean())

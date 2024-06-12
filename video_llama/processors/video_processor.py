@@ -79,8 +79,18 @@ def load_video_cv2(video_path, n_frms=MAX_INT, height=-1, width=-1, sampling="un
     for i in indices:
         cap.set(cv2.CAP_PROP_POS_FRAMES, i)
         ret, frame = cap.read()
+
+        # # HACK to handle corrupted frames
+        # if frame is None:
+        #     continue
+
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         frms.append(frame)
+    
+    # # HACK to handle corrupted frames
+    # if len(frms) == 0:
+    #     frms = [np.zeros((height, width, 3), dtype=np.uint8)]
+
     frms = torch.from_numpy(np.stack(frms, axis=0)).permute(3, 0, 1, 2).float()
 
     # Resize to the given size
