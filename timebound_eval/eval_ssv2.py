@@ -180,14 +180,18 @@ def gather_results(df_pair):
         row_b = df_main[df_main.id == str(id_b)].iloc[0].to_dict()
 
         # Get text score
-        a = llm_answer_plain(
-            chat, video_path=video_path_a, text_options=[row_a["label"], row_b["label"]],
-        )
-        b = llm_answer_plain(
-            chat, video_path=video_path_b, text_options=[row_b["label"], row_a["label"]],
-        )
-        text_flag = a and b
-        results.append({"text": text_flag})
+        try:
+            a = llm_answer_plain(
+                chat, video_path=video_path_a, text_options=[row_a["label"], row_b["label"]],
+            )
+            b = llm_answer_plain(
+                chat, video_path=video_path_b, text_options=[row_b["label"], row_a["label"]],
+            )
+            text_flag = a and b
+            results.append({"text": text_flag})
+        except:
+            print("Skipping video: ", id_a, id_b)
+            continue
     results = pd.DataFrame(results)
     scores = results.mean()
     print("Result: ", scores)
