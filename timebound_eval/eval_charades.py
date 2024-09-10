@@ -43,6 +43,7 @@ from model_api import (
 
 def llm_answer_plain(
         chat, video_path=None, text_options=None, num_beams=1, temperature=1.0,
+        video_loader="load_video_cv2",
     ):
     if video_path is None:
         video_path = "../TimeBound.v1/sample_data/folding_paper.mp4"
@@ -62,7 +63,7 @@ def llm_answer_plain(
         "Follow the instructions carefully and explain your answers in detail."
     img_list = []
     llm_message = chat.upload_video_without_audio(
-        video_path, chat_state, img_list, video_loader="load_video_cv2",
+        video_path, chat_state, img_list, video_loader=video_loader,
     )
 
 
@@ -96,7 +97,7 @@ def llm_answer_plain(
         "Follow the instructions carefully and explain your answers in detail."
     img_list = []
     llm_message = chat.upload_video_without_audio(
-        video_path, chat_state, img_list, video_loader="load_video_cv2",
+        video_path, chat_state, img_list, video_loader=video_loader,
     )
 
 
@@ -172,11 +173,6 @@ def gather_results(df_pair):
 
 if __name__ == "__main__":
 
-    # Get config
-    args, cfg = load_config()
-
-    # Load model
-    chat, model, vis_processor = load_model(args, cfg, low_resource=False)
 
     # Load data
     sys.path.append("../TimeBound.v1/")
@@ -187,6 +183,15 @@ if __name__ == "__main__":
     _, df_main = charades.load_main_csv(paths, split)
     df_time = charades.load_time_csv(paths, split)
     df_pair = charades.load_pair_csv(paths, split)
+    
+    print("Only sampling 2000 pairs for evaluation.")
+    df_pair = df_pair.sample(2000, random_state=0)
+
+    # Get config
+    args, cfg = load_config()
+
+    # Load model
+    chat, model, vis_processor = load_model(args, cfg, low_resource=False)
 
     # Gather results
     gather_results(df_pair)
